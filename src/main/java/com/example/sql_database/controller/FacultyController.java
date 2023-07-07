@@ -1,6 +1,7 @@
 package com.example.sql_database.controller;
 
-import com.example.sql_database.entity.Faculty;
+import com.example.sql_database.entity.FacultyDTO;
+import com.example.sql_database.entity.StudentDTO;
 import com.example.sql_database.service.FacultyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,32 +20,43 @@ public class FacultyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Faculty> getFaculty(@PathVariable Long id) {
+    public ResponseEntity<FacultyDTO> getFaculty(@PathVariable Long id) {
         return ResponseEntity.ok(facultyService.getFaculty(id));
     }
 
-    @GetMapping("/color/{color}")
-    public ResponseEntity<List<Faculty>> getFacultyByColor(@PathVariable String color) {
+    @GetMapping("/colors")
+    public ResponseEntity<List<FacultyDTO>> getFacultyByColor(@RequestParam String color) {
         return ResponseEntity.ok(facultyService.getFacultyByColor(color));
     }
 
+    @GetMapping("/colorIgnoreCase")
+    public ResponseEntity<List<FacultyDTO>> getFacultyByColorIgnoreCase(@RequestParam String color) {
+        return ResponseEntity.ok(facultyService.getFacultyByColorIgnoreCase(color));
+    }
+
+    @GetMapping("/studentsFromFaculty")
+    public ResponseEntity<List<StudentDTO>> getStudentsByFacultyId(@RequestParam Long id) {
+        return ResponseEntity.ok(facultyService.getStudentsByFacultyId(id));
+    }
+
     @PostMapping
-    public ResponseEntity<String> createFaculty(@RequestBody Faculty faculty) {
-        if (faculty != null) {
-            facultyService.create(faculty);
+    public ResponseEntity<String> createFaculty(@RequestBody FacultyDTO facultyDTO) {
+        if (facultyDTO != null) {
+            facultyService.create(facultyDTO);
             return ResponseEntity.ok("Факультет добавлен");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @PutMapping
-    public ResponseEntity<String> editFaculty(@RequestParam Long id, @RequestBody Faculty faculty) {
+
+    public ResponseEntity<String> editFaculty(@RequestParam Long id, @RequestBody FacultyDTO faculty) {
         if (faculty != null) {
             facultyService.update(id, faculty);
             return ResponseEntity.ok("Факультет изменён");
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 

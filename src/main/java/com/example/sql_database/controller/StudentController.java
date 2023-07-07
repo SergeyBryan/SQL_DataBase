@@ -1,6 +1,7 @@
 package com.example.sql_database.controller;
 
-import com.example.sql_database.entity.Student;
+import com.example.sql_database.entity.FacultyDTO;
+import com.example.sql_database.entity.StudentDTO;
 import com.example.sql_database.service.StudentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,34 +18,44 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping("/filterByAge/{age}")
-    public ResponseEntity<List<Student>> getByAge(@PathVariable int age) {
+    @GetMapping("/filterByAge")
+    public ResponseEntity<List<StudentDTO>> getByAge(@RequestParam int age) {
         return ResponseEntity.ok(studentService.getByAge(age));
     }
 
+    @GetMapping("/filterByAgeBetween/")
+    public ResponseEntity<List<StudentDTO>> getByAgeBetween(@RequestParam int min, @RequestParam int max) {
+        return ResponseEntity.ok(studentService.getByAgeBetween(min, max));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Student> getById(@PathVariable Long id) {
+    public ResponseEntity<StudentDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(studentService.getStudent(id));
     }
 
 
     @GetMapping
-    public ResponseEntity<List<Student>> getAll() {
+    public ResponseEntity<List<StudentDTO>> getAll() {
         return ResponseEntity.ok(studentService.getAll());
     }
 
+    @GetMapping("/studentFaculty")
+    public ResponseEntity<FacultyDTO> getFacultyByStudentId(@RequestParam Long id) {
+        return ResponseEntity.ok(studentService.getStudentFaculty(id));
+    }
+
     @PutMapping
-    public ResponseEntity<String> updateStudent(@RequestParam Long id, @RequestBody Student student) {
+    public ResponseEntity<String> updateStudent(@RequestParam Long id, @RequestBody StudentDTO studentDTO) {
         if (studentService.getStudent(id) != null) {
-            studentService.update(id, student);
+            studentService.update(id, studentDTO);
             return ResponseEntity.ok("Данные о студенте были изменены");
         }
         return ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public ResponseEntity<String> createStudent(@RequestBody Student student) {
-        studentService.add(student);
+    public ResponseEntity<String> createStudent(@RequestBody StudentDTO studentDTO) {
+        studentService.add(studentDTO);
         return ResponseEntity.ok("Студент был добавлен");
     }
 
