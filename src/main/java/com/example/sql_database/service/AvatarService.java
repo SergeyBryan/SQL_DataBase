@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
@@ -20,7 +21,6 @@ import java.nio.file.Path;
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
 @Service
-@Transactional
 public class AvatarService {
 
     @Value(value = "${students.avatars.dir.path}")
@@ -47,6 +47,7 @@ public class AvatarService {
                 .orElseThrow(() -> new OpenApiResourceNotFoundException("Аватар по id " + id + " не был найден"));
     }
 
+    @Transactional
     private void checkAndUpload(Path path, MultipartFile file) throws IOException {
         Files.createDirectories(path.getParent());
         Files.deleteIfExists(path);
@@ -63,7 +64,7 @@ public class AvatarService {
     private Path createPath(Long id, MultipartFile file) {
         String fileName = file.getOriginalFilename();
         if (fileName != null) {
-            return Path.of(fileDir, id + "." + getExtension(fileName));
+            return Path.of(fileDir, id + "." + StringUtils.getFilenameExtension(fileName));
         } else {
             throw new OpenApiResourceNotFoundException("Не найден");
         }
@@ -90,13 +91,12 @@ public class AvatarService {
             Graphics2D graphics2D = preview.createGraphics();
             graphics2D.drawImage(image, 0, 0, 100, height, null);
             graphics2D.dispose();
-            ImageIO.write(preview, getExtension(filePath.getFileName().toString()), baos);
+            String extension = StringUtils.getFilenameExtension(filePath.getFileName().toString());
+            if (extension != null) {
+                ImageIO.write(preview, extension, baos);
+            }
             return baos.toByteArray();
         }
-    }
-
-    private String getExtension(String fileName) {
-        return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
 }
