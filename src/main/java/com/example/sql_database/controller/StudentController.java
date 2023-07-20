@@ -33,7 +33,6 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getStudent(id));
     }
 
-
     @GetMapping
     public ResponseEntity<List<StudentDTO>> getAll() {
         return ResponseEntity.ok(studentService.getAll());
@@ -42,6 +41,26 @@ public class StudentController {
     @GetMapping("/studentFaculty")
     public ResponseEntity<FacultyDTO> getFacultyByStudentId(@RequestParam Long id) {
         return ResponseEntity.ok(studentService.getStudentFaculty(id));
+    }
+
+    @GetMapping("/sorting")
+    public ResponseEntity<List<StudentDTO>> getAllBySort(@RequestParam("page") Integer pageNumber, @RequestParam("quantity") Integer studentQuantity) {
+        return ResponseEntity.ok(studentService.getAllBySort(pageNumber, studentQuantity));
+    }
+
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getAllStudentInValue() {
+        return ResponseEntity.ok(studentService.getNumberOfStudents());
+    }
+
+    @GetMapping("/average")
+    public ResponseEntity<Integer> getAverageAgeByStudent() {
+        return ResponseEntity.ok(studentService.getAverageAgeByStudent());
+    }
+
+    @GetMapping("/young-student")
+    public ResponseEntity<List<StudentDTO>> getYoungStudent() {
+        return ResponseEntity.ok(studentService.getYoungStudents());
     }
 
     @PutMapping
