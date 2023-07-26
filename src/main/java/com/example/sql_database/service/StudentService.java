@@ -6,6 +6,7 @@ import com.example.sql_database.entity.StudentDTO;
 import com.example.sql_database.repository.FacultyRepository;
 import com.example.sql_database.repository.StudentRepository;
 import org.springdoc.api.OpenApiResourceNotFoundException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -86,5 +87,32 @@ public class StudentService {
         student.setName(studentDTO.getName());
         student.setFaculty((facultyRepository.findById(studentDTO.getFacultyId()).orElse(null)));
         studentRepository.save(student);
+    }
+
+
+    public Integer getNumberOfStudents() {
+        return studentRepository.getNumberOfStudents();
+    }
+
+    public Integer getAverageAgeByStudent() {
+        return studentRepository.getAverageAgeByStudent();
+    }
+
+    public List<StudentDTO> getYoungStudents() {
+        List<Student> students = studentRepository.getFiveYoungStudents();
+        List<StudentDTO> studentDTOS = new ArrayList<>();
+        students.forEach(student -> studentDTOS.add(StudentDTO.fromStudent(student)));
+        return studentDTOS;
+    }
+
+    public List<StudentDTO> getAllBySort(Integer pageNumber, Integer studentQuantity) {
+        if (studentQuantity > 50 || studentQuantity <= 0) {
+            studentQuantity = 50;
+        }
+        PageRequest pageRequest = PageRequest.of(pageNumber - 1, studentQuantity);
+        List<Student> students = studentRepository.findAll(pageRequest).getContent();
+        List<StudentDTO> studentDTOS = new ArrayList<>();
+        students.forEach(student -> studentDTOS.add(StudentDTO.fromStudent(student)));
+        return studentDTOS;
     }
 }

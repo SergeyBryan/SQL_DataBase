@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - include:
+      file: liquibase/init.sql
+  - changeSet:
+      id: unique_name_in_faculty
+      author: Sergey Bryan
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: name_unique
+            tableName: faculty
+#          sql: "ALTER TABLE faculty ADD CONSTRAINT name_unique unique (name)"
+  - changeSet:
+      id: check_age_in_student
+      author: Sergey Bryan
+      changes:
+        - sql: "ALTER TABLE student ADD CONSTRAINT age_check CHECK (age>16)"
