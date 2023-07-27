@@ -19,7 +19,6 @@ public class AppInfoDTO {
         if (appEnvironment.equals("dev")) {
             appInfoDTO.setAppName("hogwarts-school");
             appInfoDTO.setAppVersion("0.0.1");
-            return appInfoDTO;
         }
         return appInfoDTO;
     }
