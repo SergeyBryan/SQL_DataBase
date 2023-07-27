@@ -14,8 +14,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
-
 @RestController
 @RequestMapping("/avatar")
 public class AvatarController {
@@ -27,7 +25,6 @@ public class AvatarController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> saveAvatar(@RequestParam Long id, @RequestParam MultipartFile file) throws IOException {
-        System.out.println(file.getSize());
         if (file.getSize() > 1024 * 500) {
             return ResponseEntity.badRequest().body("Файл слишком много весит");
         }
