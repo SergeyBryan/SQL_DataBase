@@ -5,6 +5,8 @@ import com.example.sql_database.entity.Student;
 import com.example.sql_database.repository.AvatarRepository;
 import com.example.sql_database.repository.StudentRepository;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springdoc.api.OpenApiResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,7 @@ import static java.nio.file.StandardOpenOption.CREATE_NEW;
 @Service
 public class AvatarService {
 
+    private final Logger logger = LoggerFactory.getLogger(AvatarService.class);
     @Value(value = "${students.avatars.dir.path}")
     private String fileDir;
     private final AvatarRepository avatarRepository;
@@ -34,17 +37,25 @@ public class AvatarService {
     }
 
     public void saveAvatar(Long id, MultipartFile file) throws IOException {
+        logger.debug("File size: {}", file.getSize());
         Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Пользователь c id " + id + " не найден"));
+                .orElseThrow(() -> {
+                    logger.error("The student with id = {} is not found", id);
+                    return new OpenApiResourceNotFoundException("Пользователь c id " + id + " не найден");
+                });
         Path path = createPath(id, file);
         checkAndUpload(path, file);
         Avatar avatar = prepareAvatar(id, student, path, file);
+        logger.info("Was invoked method for save avatar");
         avatarRepository.save(avatar);
     }
 
     public Avatar findAvatar(Long id) {
         return avatarRepository.findById(id)
-                .orElseThrow(() -> new OpenApiResourceNotFoundException("Аватар по id " + id + " не был найден"));
+                .orElseThrow(() -> {
+                    logger.error("Avatar with id = {} is not found", id);
+                    return new OpenApiResourceNotFoundException("Аватар по id " + id + " не был найден");
+                });
     }
 
     @Transactional
@@ -64,8 +75,10 @@ public class AvatarService {
     private Path createPath(Long id, MultipartFile file) {
         String fileName = file.getOriginalFilename();
         if (fileName != null) {
+            logger.info("The path was created successfully");
             return Path.of(fileDir, id + "." + StringUtils.getFilenameExtension(fileName));
         } else {
+            logger.error("The file is not found");
             throw new OpenApiResourceNotFoundException("Не найден");
         }
     }
@@ -77,6 +90,7 @@ public class AvatarService {
         avatar.setFilePath(path.toString());
         avatar.setMediaType(file.getContentType());
         avatar.setData(generateImagePreview(path));
+        logger.info("Avatar was created successfully");
         return avatar;
     }
 
@@ -95,6 +109,7 @@ public class AvatarService {
             if (extension != null) {
                 ImageIO.write(preview, extension, baos);
             }
+            logger.info("Image preview is ready");
             return baos.toByteArray();
         }
     }
